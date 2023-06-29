@@ -1,0 +1,54 @@
+
+<div class="outbox">
+    {{template "header" .}}
+    <div class="table-container is-centered" style="margin:0 auto">
+        <table class="table" >
+            <thead>
+            <tr>
+                <th style="width:50px"></th>
+                <th style="width:100px">状态</th>
+                <th style="width:35%">名称</th>
+                <th style="width:25%">镜像</th>
+                <th style="width:10%">Pod副本数</th>
+            </tr>
+            </thead>
+            <tbody id="dep">
+            <tr>
+                <td><input type="checkbox"/></td>
+                <td> - </td>
+                <td><a href="/deployments/${Name}">${Name}</a></td>
+                <td>${Images}</td>
+                <td class="is-border"> <span  >${Replicas[0]}</span>
+                    / <span class="is-green  ">${Replicas[1]}</span>
+                    /  <span class=" is-red">${Replicas[2]}</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        let tmpl=$("#dep").html()
+        $("#dep").html("");
+        $.template( "deployments", tmpl );
+        function loadDeployments() {
+            $.ajax({
+                type: "POST",
+                url: "/core/deployments",
+                dataType: "json",
+                success: function (data) {
+                    if (data.message === "Ok") {
+                        $("#dep").html("");
+                        $.tmpl("deployments", data.result )
+                            .appendTo( "#dep" );
+                    }
+                },
+                error: function (data) {
+                    alert(data.responseJSON.error)
+                }
+            })
+        }
+        loadDeployments()
+        window.setInterval("loadDeployments()",2000)
+    </script>
+</div>
+
+{{template "footer" .}}
